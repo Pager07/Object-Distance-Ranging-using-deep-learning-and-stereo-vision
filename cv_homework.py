@@ -1,3 +1,4 @@
+# Ref: https://github.com/georgeprice/CV-Assignment/blob/master/assignment.py
 #####################################################################
 
 import cv2
@@ -93,4 +94,21 @@ def project_3D_points_to_2D_image_points(points):
 #     -How to pass images files into yolo?
 # - Get detection calss and bounding box location interms of pixel coordinates 
 #     - How to do dectection in yolo?
+#           - Read image file data 
+#           - Get list of all file names  in a sorted manner
 
+#     - What yolo premade function do I have?
+            # - draw_pred
+                # - We dont need to focus on this function for now
+            # - post_process
+                #  - We dont need to focus on this function for now
+            # - getOutputsNames 
+                # - net is the cnn that gets the layers name
+                # - Where is net defined?
+                #     - net is passed in as argument
+
+def getOutputsNames(net):
+    # Get the names of all the layers in the network
+    layersNames = net.getLayerNames()
+    # Get the names of the output layers, i.e. the layers with unconnected outputs
+    return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
