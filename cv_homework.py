@@ -91,12 +91,26 @@ def project_3D_points_to_2D_image_points(points):
 #####################################################################
 #Yolo for object detection
 # - Pass in imageL in to yolo
-#     -How to pass images files into yolo?
+#     - How to pass images files into yolo?
 # - Get detection calss and bounding box location interms of pixel coordinates 
 #     - How to do dectection in yolo?
 #           - Read image file data 
 #           - Get list of all file names  in a sorted manner
+#           - for each image
+# #             - How to loop through each image?
+#               - find disparity image of the image 
+#               - get 3D points from proejct_disparity_to_3d() fucntion
+#               - for each 3D points, convert it to (x,y)
+                        # store a mapping {(x,y):Z}
+#               - pass it thorugh yolo
+#               - get reults: classID'S, confidences,boxes
+#                   - for each detection
+                            # - get center coordinates of the box (cx,cy)
+                            #      - get z for (cx,cy) key //using int so, the coord must be there     
+                            #- edit drawpred() 
+                            #       - to show distacne 
 
+# 
 #     - What yolo premade function do I have?
             # - draw_pred
                 # - We dont need to focus on this function for now
@@ -106,6 +120,15 @@ def project_3D_points_to_2D_image_points(points):
                 # - net is the cnn that gets the layers name
                 # - Where is net defined?
                 #     - net is passed in as argument
+#    - What output does yolo give out?
+#           -use postporcess() function to get classIDs
+#               - classIDs,confidences,boxes
+#               - boxes: [[obj1]....[objn]]
+#                   - obj1:[left,top,wdith,height]
+#                           -What is left,top,wdith,height? -> check drawpred
+#                                   - left,top : (x,y) of top left coord
+
+
 
 def getOutputsNames(net):
     # Get the names of all the layers in the network
