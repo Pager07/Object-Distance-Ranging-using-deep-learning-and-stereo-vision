@@ -1,4 +1,3 @@
-# Ref: https://github.com/georgeprice/CV-Assignment/blob/master/assignment.py
 #####################################################################
 
 import cv2
@@ -7,11 +6,38 @@ import numpy as np
 import random
 import csv
 
+# code from stereo_disparity.py
+#####################################################################
 master_path_to_dataset = "/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/TTBB-durham-02-10-17-sub10" # ** need to edit this **
 directory_to_cycle_left = "left-images"     # edit this if needed
 directory_to_cycle_right = "right-images"   # edit this if needed
 
+# set this to a file timestamp to start from (empty is first example - outside lab)
+# e.g. set to 1506943191.487683 for the end of the Bailey, just as the vehicle turns
+
+skip_forward_file_pattern = ""; # set to timestamp to skip forward to
+
+crop_disparity = False; # display full or cropped disparity image
+pause_playback = False; # pause until key press after each image
+
+
+# resolve full directory location of data set for left / right images
+
+full_path_directory_left =  os.path.join(master_path_to_dataset, directory_to_cycle_left);
+full_path_directory_right =  os.path.join(master_path_to_dataset, directory_to_cycle_right);
+
+left_file_list = sorted(os.listdir(full_path_directory_left));
+
+# setup the disparity stereo processor to find a maximum of 128 disparity values
+# (adjust parameters if needed - this will effect speed to processing)
+
+max_disparity = 128;
+stereoProcessor = cv2.StereoSGBM_create(0, max_disparity, 21);
 #####################################################################
+
+# Code from stereo_to_3d.py
+#####################################################################
+
 # fixed camera parameters for this stereo setup (from calibration)
 
 camera_focal_length_px = 399.9745178222656  # focal length in pixels
@@ -23,75 +49,50 @@ image_centre_w = 474.5;
 
 #####################################################################
 
+if __name__ == "__main__":
+    for filename_left in left_file_list:
 
-## project_disparity_to_3d : project a given disparity image
-## (uncropped, unscaled) to a set of 3D points with optional colour
+        # skip forward to start a file we specify by timestamp (if this is set)
+        if ((len(skip_forward_file_pattern) > 0) and not(skip_forward_file_pattern in filename_left)):
+            continue;
+        elif ((len(skip_forward_file_pattern) > 0) and (skip_forward_file_pattern in filename_left)):
+            skip_forward_file_pattern = "";
 
-def project_disparity_to_3d(disparity, max_disparity, rgb=[]):
 
-    points = [];
+        # from the left image filename get the correspondoning right image
+        filename_right = filename_left.replace("_L", "_R");
+        full_path_filename_left = os.path.join(full_path_directory_left, filename_left);
+        full_path_filename_right = os.path.join(full_path_directory_right, filename_right);
 
-    f = camera_focal_length_px;
-    B = stereo_camera_baseline_m;
 
-    height, width = disparity.shape[:2];
+        # for sanity print out these filenames
+        print(full_path_filename_left);
+        print(full_path_filename_right);
+        print();
 
-    # assume a minimal disparity of 2 pixels is possible to get Zmax
-    # and then we get reasonable scaling in X and Y output if we change
-    # Z to Zmax in the lines X = ....; Y = ...; below
+        if ('.png' in filename_left) and (os.path.isfile(full_path_filename_right)) :
+            
+            # read left and right images and display in windows
+            # N.B. despite one being grayscale both are in fact stored as 3-channel
+            # RGB images so load both as such
+            imgL = cv2.imread(full_path_filename_left, cv2.IMREAD_COLOR)
+            cv2.imshow('left image',imgL)
+            imgR = cv2.imread(full_path_filename_right, cv2.IMREAD_COLOR)
+            cv2.imshow('right image',imgR)
+            print("-- files loaded successfully");
+            print();
 
-    # Zmax = ((f * B) / 2);
 
-    for y in range(height): # 0 - height is the y axis index
-        for x in range(width): # 0 - width is the x axis index
+            # remember to convert to grayscale (as the disparity matching works on grayscale)
+            # N.B. need to do for both as both are 3-channel images
+            grayL = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY);
+            grayR = cv2.cvtColor(imgR,cv2.COLOR_BGR2GRAY);
 
-            # if we have a valid non-zero disparity
 
-            if (disparity[y,x] > 0):
-
-                # calculate corresponding 3D point [X, Y, Z]
-
-                # stereo lecture - slide 22 + 25
-
-                Z = (f * B) / disparity[y,x];
-
-                X = ((x - image_centre_w) * Z) / f;
-                Y = ((y - image_centre_h) * Z) / f;
-
-                # add to points
-
-                if(rgb.size > 0):
-                    points.append([X,Y,Z,rgb[y,x,2], rgb[y,x,1],rgb[y,x,0]]);
-                else:
-                    points.append([X,Y,Z]);
-
-    return points;
-
-#####################################################################
-# project a set of 3D points back the 2D image domain
-
-def project_3D_points_to_2D_image_points(points):
-
-    points2 = [];
-
-    # calc. Zmax as per above
-
-    # Zmax = (camera_focal_length_px * stereo_camera_baseline_m) / 2;
-
-    for i1 in range(len(points)):
-
-        # reverse earlier projection for X and Y to get x and y again
-
-        x = ((points[i1][0] * camera_focal_length_px) / points[i1][2]) + image_centre_w;
-        y = ((points[i1][1] * camera_focal_length_px) / points[i1][2]) + image_centre_h;
-        points2.append([x,y]);
-
-    return points2;
-
-#####################################################################
-
-def getOutputsNames(net):
-    # Get the names of all the layers in the network
-    layersNames = net.getLayerNames()
-    # Get the names of the output layers, i.e. the layers with unconnected outputs
-    return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+            # compute disparity image from undistorted and rectified stereo images
+            # that we have loaded
+            disparity = stereoProcessor.compute(grayL,grayR);
+            
+        else:
+            print("-- files skipped (perhaps one is missing or not PNG)");
+            print();

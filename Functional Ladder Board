@@ -1,8 +1,10 @@
-#           - Read image file data 
+#           - Load image file data (DONE)
 #           - Get list of all file names  in a sorted manner
-#           - for each image
-# #             - How to loop through each image?
-#               - find disparity image of the image 
+#           - for each image file name(DONE)  
+#               - read left and right image(DONE)
+# #             - Find out How to loop through each image?(DONE)
+                    - Follow the code in given files
+#               - find disparity-image of the image  (DONE)
 #               - get 3D points from proejct_disparity_to_3d() fucntion
 #               - for each 3D points, convert it to (x,y)
                         # store a mapping {(x,y):Z}
