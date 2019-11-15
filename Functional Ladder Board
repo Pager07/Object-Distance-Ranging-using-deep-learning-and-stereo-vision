@@ -9,6 +9,8 @@
 #               - for each 3D points, convert it to (x,y)
                         # store a mapping {(x,y):Z}
 #               - pass it thorugh yolo
+                    - How to pass it an image to YOLO?
+
 #               - get reults: classID'S, confidences,boxes
 #                   - for each detection
                             # - get center coordinates of the box (cx,cy)
@@ -33,3 +35,6 @@
 #                   - obj1:[left,top,wdith,height]
 #                           -What is left,top,wdith,height? -> check drawpred
 #                                   - left,top : (x,y) of top left coord
+
+
+#learn to import files (done)

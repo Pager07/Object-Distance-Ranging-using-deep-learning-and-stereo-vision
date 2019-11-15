@@ -47,7 +47,8 @@ stereo_camera_baseline_m = 0.2090607502     # camera baseline in metres
 image_centre_h = 262.0;
 image_centre_w = 474.5;
 
-#####################################################################
+## project_disparity_to_3d : project a given disparity image
+## (uncropped, unscaled) to a set of 3D points with optional colour
 
 if __name__ == "__main__":
     for filename_left in left_file_list:
@@ -92,7 +93,37 @@ if __name__ == "__main__":
             # compute disparity image from undistorted and rectified stereo images
             # that we have loaded
             disparity = stereoProcessor.compute(grayL,grayR);
+            dispNoiseFilter = 5; # increase for more agressive filtering
+            cv2.filterSpeckles(disparity, 0, 4000, max_disparity - dispNoiseFilter);
+            _, disparity = cv2.threshold(disparity,0, max_disparity * 16, cv2.THRESH_TOZERO);
+            disparity_scaled = (disparity / 16.).astype(np.uint8);
+
+            # project to a 3D colour point cloud (with or without colour)
+            points = project_disparity_to_3d(disparity_scaled, max_disparity);
+            points = np.array(points)
+            map_2d_coord_to_Z = {}
+            for row in points:
+                3d_coords = row[0:2 + 1]
+                2d_coord  = tuple(project_3D_points_to_2D_image_points(3d_coords))
+                map_2d_coord_to_Z[2d_coord] = 3d_coords[2]
+
+            
+
+
+
+
             
         else:
             print("-- files skipped (perhaps one is missing or not PNG)");
             print();
+
+
+
+
+
+
+
+
+
+
+

@@ -147,7 +147,6 @@ if (os.path.isfile(full_path_filename_left) and os.path.isfile(full_path_filenam
     # (which for reasons best known to the OpenCV developers is returned scaled by 16)
 
     disparity = stereoProcessor.compute(grayL,grayR);
-    print(disparity.shape)
     # filter out noise and speckles (adjust parameters as needed)
 
     dispNoiseFilter = 5; # increase for more agressive filtering
@@ -169,9 +168,10 @@ if (os.path.isfile(full_path_filename_left) and os.path.isfile(full_path_filenam
 
     # project to a 3D colour point cloud (with or without colour)
 
-    # points = project_disparity_to_3d(disparity_scaled, max_disparity);
-    points = project_disparity_to_3d(disparity_scaled, max_disparity, imgL);
-
+    points = project_disparity_to_3d(disparity_scaled, max_disparity,[]);
+    # points = project_disparity_to_3d(disparity_scaled, max_disparity, imgL);
+    print(np.array(points).shape)
+    print(points[0][0])
     # write to file in an X simple ASCII X Y Z format that can be viewed in 3D
     # using the on-line viewer at http://lidarview.com/
     # (by uploading, selecting X Y Z format, press render , rotating the view)
