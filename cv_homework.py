@@ -4,7 +4,7 @@ import cv2
 import os
 import numpy as np
 import random
-import csv
+import object_detection
 
 # code from stereo_disparity.py
 #####################################################################
@@ -106,12 +106,8 @@ if __name__ == "__main__":
                 3d_coords = row[0:2 + 1]
                 2d_coord  = tuple(project_3D_points_to_2D_image_points(3d_coords))
                 map_2d_coord_to_Z[2d_coord] = 3d_coords[2]
-
+            yolo_image_output = object_detection.process_image(imgL , map_2d_coord_to_Z)
             
-
-
-
-
             
         else:
             print("-- files skipped (perhaps one is missing or not PNG)");

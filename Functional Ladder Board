@@ -9,12 +9,18 @@
 #               - for each 3D points, convert it to (x,y)
                         # store a mapping {(x,y):Z}
 #               - pass it thorugh yolo
-                    - How to pass it an image to YOLO?
+                    - How to pass it an image to YOLO?(DONE)
 
 #               - get reults: classID'S, confidences,boxes
 #                   - for each detection
                             # - get center coordinates of the box (cx,cy)
-                            #      - get z for (cx,cy) key //using int so, the coord must be there     
+                            #      - get z for (cx,cy) key //using int so, the coord must be there   (DONE)
+                                        - The cv_homework module gives the entier mapping (x,y):z to objection detection when calling
+                                          process_image()
+
+                                        - Inside object_detection module there will be a function that take mapping and center_coord
+                                          and returns z value
+                                        - this z value is passed to the draw_pred function to write on the image
                             #- edit drawpred() 
                             #       - to show distacne 
 
