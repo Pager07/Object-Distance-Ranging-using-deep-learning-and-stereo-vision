@@ -92,6 +92,16 @@ for filename_left in left_file_list:
             map_2d_coord_to_Z[coords_2d_tuple] = coords_3d[2]   
         yolo_image_output = object_detection.process_image(imgL, map_2d_coord_to_Z)
         cv2.imshow('Distance detection',yolo_image_output)
+
+        key = cv2.waitKey(40 * (not (pause_playback))) & 0xFF;  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
+        if (key == ord('x')):  # exit
+            break;  # exit
+        elif (key == ord('s')):  # save
+            cv2.imwrite("yolo-image-ouput.png", yolo_image_output);
+        elif (key == ord('c')):  # crop
+            crop_disparity = not (crop_disparity);
+        elif (key == ord(' ')):  # pause (on next frame)
+            pause_playback = not (pause_playback);
     else:
         print("-- files skipped (perhaps one is missing or not PNG)");
         print();
