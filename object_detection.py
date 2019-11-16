@@ -55,7 +55,7 @@ def drawPred(image, class_name, confidence, left, top, right, bottom, colour,z):
 
     # construct label
     # construct label
-    label = f'{class_name}:{round(confidence,2)},{round(z,2)}m'
+    label = f'{class_name}:{round(z,2)}m'
 
     #Display the label at the top of the bounding box
     labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
