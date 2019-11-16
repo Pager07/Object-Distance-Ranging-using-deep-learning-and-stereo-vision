@@ -10,7 +10,9 @@
                         # store a mapping {(x,y):Z}
 #               - pass it thorugh yolo
                     - How to pass it an image to YOLO?(DONE)
-
+                - It turns out we are telling yolo to do detection in a bigger picture
+                        - It is returning me bounding boxes that does not exit
+                        - SOLUTION: IGNORE IF THE CENTER OF THE BOUNDING BOX DOES NOT EXIT
 #               - get reults: classID'S, confidences,boxes
 #                   - for each detection
                             # - get center coordinates of the box (cx,cy)
@@ -22,7 +24,8 @@
                                           and returns z value
                                         - this z value is passed to the draw_pred function to write on the image
                             #- edit drawpred() 
-                            #       - to show distacne 
+                            #       - to show distacne
+
 
 # 
 #     - What yolo premade function do I have?
