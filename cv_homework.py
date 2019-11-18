@@ -1,15 +1,32 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[19]:
+
+
+import sys
 import cv2
 import os
 import numpy as np
 import random
 
+
+# In[20]:
+
+
+
+# In[26]:
+
+
+# sys.path.append('/Users/sandeep/opt/anaconda3/lib/python3.7/site-packages')
+# import import_ipynb
 import object_detection
 import stereo_to_3d
 
 
 # # Global variable setup
 
-# In[ ]:
+# In[27]:
 
 
 master_path_to_dataset = "/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/TTBB-durham-02-10-17-sub10" # ** need to edit this **
@@ -39,7 +56,23 @@ max_disparity = 128;
 stereoProcessor = cv2.StereoSGBM_create(0, max_disparity, 21);
 
 
-# In[ ]:
+# # Looping over image files
+
+# - Load the image file 
+# - Pass it to Yolo and do object detection
+#     - Should return center of the box coordinates 
+#     - [1:{class_name:'dog'  , left-top: (x,y) ,right-bottom: (x1,y1), center:(x,y) }]
+# - Find the disparity map of the image file 
+# - Edit project disparity to 3d such that
+#        - for each detected object it only calculates 3d point of given coords (center)
+#        - x,y,z
+#              - You do not need x and y 
+#              - You only need compute and return z 
+# - Pass the image to yolo agian to draw the rectangle and z value on it
+#         - draw_pred needs: image,class_name,(left-top-coord),(right-bottom-coord), colour
+#         - Thus, you need to store 
+
+# In[29]:
 
 
 counter = 0
@@ -65,8 +98,8 @@ for filename_left in left_file_list:
         imgR = cv2.imread(full_path_filename_right, cv2.IMREAD_COLOR)
         print("-- files loaded successfully");
         print();
-
-
+        
+        detected_objects_list = object_detection.process_image(imgL)
         # remember to convert to grayscale (as the disparity matching works on grayscale)
         # N.B. need to do for both as both are 3-channel images
         grayL = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY);
@@ -79,32 +112,43 @@ for filename_left in left_file_list:
         cv2.filterSpeckles(disparity, 0, 4000, max_disparity - dispNoiseFilter);
         _, disparity = cv2.threshold(disparity,0, max_disparity * 16, cv2.THRESH_TOZERO);
         disparity_scaled = (disparity / 16.).astype(np.uint8);
-
-        # project to a 3D colour point cloud (with or without colour)
-        points = stereo_to_3d.project_disparity_to_3d(disparity_scaled, max_disparity,imgL);
-        points = np.array(points)
-        map_2d_coord_to_Z = {}
-        for row in points:
-            coords_3d = row[0:3]
-            coords_2d  = stereo_to_3d.project_3D_points_to_2D_image_points([coords_3d])
-            coords_2d_tuple = (int(coords_2d[0][0]),int(coords_2d[0][1]))
-#             print(coords_2d_tuple)
-            map_2d_coord_to_Z[coords_2d_tuple] = coords_3d[2]   
-        yolo_image_output = object_detection.process_image(imgL, map_2d_coord_to_Z)
-        cv2.imshow('Distance detection',yolo_image_output)
-
-        key = cv2.waitKey(40 * (not (pause_playback))) & 0xFF;  # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
-        if (key == ord('x')):  # exit
-            break;  # exit
-        elif (key == ord('s')):  # save
-            cv2.imwrite("yolo-image-ouput.png", yolo_image_output);
-        elif (key == ord('c')):  # crop
-            crop_disparity = not (crop_disparity);
-        elif (key == ord(' ')):  # pause (on next frame)
-            pause_playback = not (pause_playback);
+        
+        print(np.array(disparity_scaled).shape)
+        print(np.array(imgL).shape)
+        for detected_object in detected_objects_list:
+            center_of_bounding_box_coord = detected_object['center']
+            distance = stereo_to_3d.project_disparity_to_3d(disparity_scaled,
+                                                            max_disparity,
+                                                            center_of_bounding_box_coord)
+            if distance != 0:
+                imgL = object_detection.drawPred(imgL,
+                                         detected_object['class_name'],
+                                         detected_object['left_top'][0],detected_object['left_top'][1],
+                                         detected_object['right_bottom'][0],detected_object['right_bottom'][1],
+                                         (255, 178, 50),
+                                         distance)
+        cv2.imshow('Distance detection',imgL)
+        
+        key = cv2.waitKey(40 * (not(pause_playback))) & 0xFF; # wait 40ms (i.e. 1000ms / 25 fps = 40 ms)
+        if (key == ord('x')):       # exit
+            break; # exit
+        elif (key == ord('s')):     # save
+            cv2.imwrite("sgbm-disparty.png", disparity_scaled);
+            cv2.imwrite("left.png", imgL);
+            cv2.imwrite("right.png", imgR);
+        elif (key == ord('c')):     # crop
+            crop_disparity = not(crop_disparity);
+        elif (key == ord(' ')):     # pause (on next frame)
+            pause_playback = not(pause_playback);
     else:
         print("-- files skipped (perhaps one is missing or not PNG)");
         print();
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

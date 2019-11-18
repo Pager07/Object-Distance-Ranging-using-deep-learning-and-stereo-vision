@@ -46,10 +46,10 @@ def set_file_dir(class_file_dir, config_file_dir, weights_file_dir):
     weights_file = weights_file_dir
 
 
-# In[29]:
+# In[3]:
 
 
-def drawPred(image, class_name, confidence, left, top, right, bottom, colour,z):
+def drawPred(image, class_name, left, top, right, bottom, colour,z):
     # Draw a bounding box.
     cv2.rectangle(image, (left, top), (right, bottom), colour, 3)
 
@@ -63,6 +63,7 @@ def drawPred(image, class_name, confidence, left, top, right, bottom, colour,z):
     cv2.rectangle(image, (left, top - round(1.5*labelSize[1])),
         (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv2.FILLED)
     cv2.putText(image, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
+    return image
 
 
 # In[30]:
@@ -160,7 +161,7 @@ def get_center_coord_of_bounding_box(top_left , bottom_right):
     row1,row2 = top_left[0],bottom_right[0]
     mid_point_row = int((row1+row2)/2)
     mid_point_col = int((col1+col2)/2)
-    return (mid_point_row, mid_point_col)
+    return (mid_point_col, mid_point_row)
 
 
 # In[34]:
@@ -170,10 +171,10 @@ def get_z_value(center_of_bounding_box ,coord2d_to_z_mapping):
     return coord2d_to_z_mapping[center_of_bounding_box]
 
 
-# In[36]:
+# In[2]:
 
 
-def process_image(frame,coord2d_to_z_mapping):
+def process_image(frame):
     init_yolo()
     # create a 4D tensor (OpenCV 'blob') from image frame (pixels scaled 0->1, image resized)
     tensor = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
@@ -188,6 +189,7 @@ def process_image(frame,coord2d_to_z_mapping):
     classIDs, confidences, boxes = postprocess(frame, results, confThreshold, nmsThreshold)
 
     # draw resulting detections on image
+    detected_object_list = []
     for detected_object in range(0, len(boxes)):
         box = boxes[detected_object]
         left = box[0]
@@ -197,16 +199,12 @@ def process_image(frame,coord2d_to_z_mapping):
         center_of_bounding_box = get_center_coord_of_bounding_box((left,top),
                                                                  (left + width, top + height)
                                                                  )
-        if center_of_bounding_box in coord2d_to_z_mapping:
-            z = get_z_value(center_of_bounding_box , coord2d_to_z_mapping)
-            drawPred(frame, classes[classIDs[detected_object]], confidences[detected_object], left, top, left + width, top + height, (255, 178, 50) , z)
+        detected_object_list.append({'class_name':classes[classIDs[detected_object]],
+                                    'left_top':(left,top),
+                                    'right_bottom':(left + width, top + height),
+                                    'center': center_of_bounding_box})
 
-
-    # Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-    t, _ = net.getPerfProfile()
-    label = 'Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency())
-    cv2.putText(frame, label, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
-    return frame
+    return detected_object_list
 
     
 
@@ -228,8 +226,8 @@ def process_image(frame,coord2d_to_z_mapping):
 # In[38]:
 
 
-a = {(1,2):'a'}
-'a' in a
+# a = {(1,2):'a'}
+# 'a' in a
 
 
 # In[39]:
