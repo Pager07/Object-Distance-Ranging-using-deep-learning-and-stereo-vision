@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ccff7c53-7d64-46d2-a645-8b8b83a8ca90" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebook/.ipynb_checkpoints/cv_homework-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebook/.ipynb_checkpoints/cv_homework-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebook/cv_homework.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebook/cv_homework.ipynb" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,21 +26,16 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/object_detection.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="563">
+            <state relative-caret-position="780">
               <caret line="56" column="21" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cv_homework.ipynb">
-          <provider selected="true" editor-type-id="jupyter-editor" />
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file:///Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/asyncio/base_events.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4588">
+            <state relative-caret-position="714">
               <caret line="562" selection-start-line="562" selection-end-line="562" />
               <folding>
                 <element signature="e#673#691#0" expanded="true" />
@@ -59,8 +56,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cv_homework.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1335">
-              <caret line="95" column="42" selection-start-line="95" selection-start-column="37" selection-end-line="95" selection-end-column="42" />
+            <state relative-caret-position="1170">
+              <caret line="95" column="41" selection-start-line="95" selection-start-column="37" selection-end-line="95" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -112,7 +109,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -124,6 +120,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -220,11 +217,13 @@
       <updated>1573825705025</updated>
       <workItem from="1573825710473" duration="22143000" />
       <workItem from="1573930881914" duration="635000" />
+      <workItem from="1574107598382" duration="2000" />
+      <workItem from="1574193010189" duration="12000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="22778000" />
+    <option name="totallyTimeSpent" value="22792000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -236,15 +235,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="2560" height="1018" extended-state="6" />
+    <frame x="0" y="23" width="2560" height="1057" extended-state="6" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.4992057" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.5071485" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Database Changes" order="0" />
       <window_info anchor="bottom" id="Jupyter" order="1" weight="0.17062636" />
-      <window_info anchor="bottom" id="Terminal" order="2" sideWeight="0.4980143" visible="true" weight="0.15442765" />
-      <window_info anchor="bottom" id="Event Log" order="3" sideWeight="0.5019857" side_tool="true" visible="true" weight="0.15442765" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="2" sideWeight="0.49722" visible="true" weight="0.15336788" />
+      <window_info anchor="bottom" id="Event Log" order="3" sideWeight="0.50277996" side_tool="true" visible="true" weight="0.15336788" />
       <window_info anchor="bottom" id="Version Control" order="4" weight="0.32937366" />
       <window_info anchor="bottom" id="Python Console" order="5" sideWeight="0.49961627" weight="0.32937366" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
@@ -310,26 +309,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="18" lean-forward="true" selection-start-line="3" selection-end-line="3" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stereo_to_3d.ipynb">
-      <provider selected="true" editor-type-id="jupyter-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/test1.py" />
+    <entry file="file://$PROJECT_DIR$/test2.py" />
+    <entry file="file://$PROJECT_DIR$/stereo_to_3d.ipynb" />
     <entry file="file://$PROJECT_DIR$/stereo_to_3d.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -346,14 +328,19 @@
     <entry file="file://$PROJECT_DIR$/testImage.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/object_detection.ipynb">
-      <provider editor-type-id="text-editor" />
-      <provider selected="true" editor-type-id="jupyter-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/object_detection.ipynb" />
+    <entry file="file://$PROJECT_DIR$/cv_homework.ipynb" />
     <entry file="file://$PROJECT_DIR$/Functional Ladder Board">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
           <caret line="14" column="90" selection-start-line="14" selection-start-column="90" selection-end-line="14" selection-end-column="90" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/object_detection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="780">
+          <caret line="56" column="21" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -366,24 +353,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cv_homework.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1335">
-          <caret line="95" column="42" selection-start-line="95" selection-start-column="37" selection-end-line="95" selection-end-column="42" />
+        <state relative-caret-position="1170">
+          <caret line="95" column="41" selection-start-line="95" selection-start-column="37" selection-end-line="95" selection-end-column="41" />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/object_detection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="563">
-          <caret line="56" column="21" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cv_homework.ipynb">
-      <provider selected="true" editor-type-id="jupyter-editor" />
     </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/asyncio/base_events.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4588">
+        <state relative-caret-position="714">
           <caret line="562" selection-start-line="562" selection-end-line="562" />
           <folding>
             <element signature="e#673#691#0" expanded="true" />
