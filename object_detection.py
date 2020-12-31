@@ -1,243 +1,195 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# # Object detection and Segmentation using Mask R-CNN
+#     - The code below is to define global functions later to be used in the code
+
+# In[40]:
 
 
-# Given an image, this module returns
-#     - Box coordinates
-#     - Image with bounding boxes with lables
-
-
-# In[11]:
-
-
-import cv2
+import cv2 as cv
 import argparse
 import sys
 import math
 import numpy as np
 
 
-# In[12]:
+# In[21]:
 
 
-class_file = "/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/python-examples-cv/coco.names"
-config_file = "/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/python-examples-cv/yolov3.cfg"
-weights_file = "/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/python-examples-cv/yolov3.weights"
+# Load classes
+classes_file = "/Users/sandeep/Desktop/MaskRCNNopencv/mscoco_labels.names"
+# Load text graph and weight files for the model
+text_graph = '/Users/sandeep/Desktop/MaskRCNNopencv/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt'
+model_weights = '/Users/sandeep/Desktop/MaskRCNNopencv/mask_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
+# Load colors
+colors_file = "/Users/sandeep/Desktop/MaskRCNNopencv/colors.txt"
+classes = None
 
-confThreshold = 0.5  # Confidence threshold
-nmsThreshold = 0.4   # Non-maximum suppression threshold
-inpWidth = 416       # Width of network's input image
-inpHeight = 416      # Height of network's input image
-
-net,output_layer_names,classes = None,None,None
-
-
-# In[19]:
+with open(classes_file, 'rt') as f:
+    classes = f.read().rstrip('\n').split('\n')
 
 
-def set_file_dir(class_file_dir, config_file_dir, weights_file_dir):
-    global class_file
-    global config_file 
-    global weights_file
-    class_file = class_file_dir
-    config_file = config_file_dir
-    weights_file = weights_file_dir
+with open(colors_file, 'rt') as f:
+    colors_str = f.read().rstrip('\n').split('\n')
+
+colors = []
+for i in range(len(colors_str)):
+    rgb = colors_str[i].split(' ')
+    color = np.array([float(rgb[0]), float(rgb[1]), float(rgb[2])])
+    colors.append(color)
 
 
-# In[3]:
+# Load network
+net = cv.dnn.readNetFromTensorflow(model_weights, text_graph)
+net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
+net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
+
+# This is a global variable that will store the img that needs to be proccessed
+frame = None
+#This will store final segemented images that will be returned 
+segmented_frame = None
+# detected_obj details
+detected_obj = {}
+
+
+# In[22]:
+
+
+# Confidence and mask threshold
+conf_threshold = 0.98
+mask_threshold = 0.4
+
+
+# #The following functions: drawPred() and set_mask_frame() are some helper function of post_proccess()
+
+# In[23]:
 
 
 def drawPred(image, class_name, left, top, right, bottom, colour,z):
     # Draw a bounding box.
-    cv2.rectangle(image, (left, top), (right, bottom), colour, 3)
+    cv.rectangle(image, (left, top), (right, bottom), colour, 3)
 
     # construct label
     # construct label
     label = f'{class_name}:{round(z,2)}m'
 
     #Display the label at the top of the bounding box
-    labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+    labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
     top = max(top, labelSize[1])
-    cv2.rectangle(image, (left, top - round(1.5*labelSize[1])),
-        (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv2.FILLED)
-    cv2.putText(image, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
+    cv.rectangle(image, (left, top - round(1.5*labelSize[1])),
+        (left + round(1.5*labelSize[0]), top + baseLine), (255, 255, 255), cv.FILLED)
+    cv.putText(image, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,0), 1)
     return image
 
 
-# In[30]:
+# In[24]:
 
 
-def postprocess(image, results, threshold_confidence, threshold_nms):
-    frameHeight = image.shape[0]
-    frameWidth = image.shape[1]
-
-    classIds = []
-    confidences = []
-    boxes = []
-
-    # Scan through all the bounding boxes output from the network and..
-    # 1. keep only the ones with high confidence scores.
-    # 2. assign the box class label as the class with the highest score.
-    # 3. construct a list of bounding boxes, class labels and confidence scores
-
-    classIds = []
-    confidences = []
-    boxes = []
-    for result in results:
-        for detection in result:
-            scores = detection[5:]
-            classId = np.argmax(scores)
-            confidence = scores[classId]
-            if confidence > threshold_confidence:
-                center_x = int(detection[0] * frameWidth)
-                center_y = int(detection[1] * frameHeight)
-                width = int(detection[2] * frameWidth)
-                height = int(detection[3] * frameHeight)
-                left = int(center_x - width / 2)
-                top = int(center_y - height / 2)
-                classIds.append(classId)
-                confidences.append(float(confidence))
-                boxes.append([left, top, width, height])
-
-    # Perform non maximum suppression to eliminate redundant overlapping boxes with
-    # lower confidences
-    classIds_nms = []
-    confidences_nms = []
-    boxes_nms = []
-
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, threshold_confidence, threshold_nms)
-    for i in indices:
-        i = i[0]
-        classIds_nms.append(classIds[i])
-        confidences_nms.append(confidences[i])
-        boxes_nms.append(boxes[i])
-
-    # return post processed lists of classIds, confidences and bounding boxes
-    return (classIds_nms, confidences_nms, boxes_nms)
+def set_mask_frame(frame, left, top, right, bottom, class_mask):
+    class_mask = cv.resize(class_mask, (right - left + 1, bottom - top + 1))
+    filtering_mask = (class_mask > mask_threshold)
+    roi = frame[top:bottom+1, left:right+1][filtering_mask]
+    frame[top:bottom+1, left:right+1][filtering_mask] = np.array(([255.0,255.0,255.0])).astype(np.uint8)
 
 
-# In[31]:
+# #The function post_process() does the following:
+#     -Processes  objects detected in the image
+#         - Takes in the following input
+#             - the coordinates of box for an object
+#             - The binary object mask from MASK-RCNN
+#         - Sets required values to  the following global variables 
+#             - detected_objs
+#                 - A dictionary storing details of the the detected object
+#                     - coord_bounding box
+#                     - class_name
+#                     - class_mask
+#             - segmented_frame
+#                 - The binary mask of the image
+#         
+
+# In[25]:
 
 
-# Get the names of the output layers of the CNN network
-# net : an OpenCV DNN module network object
-def getOutputsNames(net):
-    # Get the names of all the layers in the network
-    layersNames = net.getLayerNames()
-    # Get the names of the output layers, i.e. the layers with unconnected outputs
-    return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+# For each detected object in a frame, extract bounding box and mask
+def postprocess(boxes, masks):
+    global frame
+    global segmented_frame
+    num_classes = masks.shape[1]
+    num_detections = boxes.shape[2]
 
+    frame_H = frame.shape[0]
+    frame_W = frame.shape[1]
 
-# In[32]:
+    #Blank black frame, same size as frame. To be used as template of binary mask
+    mask_frame = np.zeros((frame.shape[0],frame.shape[1],3), np.uint8)
+    
+    # a capy of original image
+    frame_copy = frame.copy()
 
+    for i in range(num_detections):
+        box = boxes[0, 0, i]
+        mask = masks[i]
+        score = box[2]
+        if score > conf_threshold:
+            class_id = int(box[1])
 
-def init_yolo():  
-    # Load names of classes from file
-    classesFile = class_file
-    global classes 
-    with open(classesFile, 'rt') as f:
-        classes = f.read().rstrip('\n').split('\n')
+            # Extract the bounding box
+            left = int(frame_W * box[3])
+            top = int(frame_H * box[4])
+            right = int(frame_W * box[5])
+            bottom = int(frame_H * box[6])
 
-    # load configuration and weight files for the model and load the network using them
-    global net
-    global output_layer_names
-    net = cv2.dnn.readNetFromDarknet(config_file, weights_file)
-    output_layer_names = getOutputsNames(net)
+            left = max(0, min(left, frame_W-1))
+            top = max(0, min(top, frame_H-1))
+            right = max(0, min(right, frame_W-1))
+            bottom = max(0, min(bottom, frame_H-1))
 
-     # defaults DNN_BACKEND_INFERENCE_ENGINE if Intel Inference Engine lib available or DNN_BACKEND_OPENCV otherwise
-    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
-
-    # change to cv2.dnn.DNN_TARGET_CPU (slower) if this causes issues (should fail gracefully if OpenCL not available)
-    net.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
-
-
-# In[33]:
-
-
-def get_center_coord_of_bounding_box(top_left , bottom_right):
-    col1,col2 = top_left[1],bottom_right[1]
-    row1,row2 = top_left[0],bottom_right[0]
-    mid_point_row = int((row1+row2)/2)
-    mid_point_col = int((col1+col2)/2)
-    return (mid_point_col, mid_point_row)
-
-
-# In[34]:
-
-
-def get_z_value(center_of_bounding_box ,coord2d_to_z_mapping):
-    return coord2d_to_z_mapping[center_of_bounding_box]
-
-
-# In[2]:
-
-
-def process_image(frame):
-    init_yolo()
-    # create a 4D tensor (OpenCV 'blob') from image frame (pixels scaled 0->1, image resized)
-    tensor = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
-
-    # set the input to the CNN network
-    net.setInput(tensor)
-
-    # runs forward inference to get output of the final output layers
-    results = net.forward(output_layer_names)
-
-    # remove the bounding boxes with low confidence
-    classIDs, confidences, boxes = postprocess(frame, results, confThreshold, nmsThreshold)
-
-    # draw resulting detections on image
-    detected_object_list = []
-    for detected_object in range(0, len(boxes)):
-        box = boxes[detected_object]
-        left = box[0]
-        top = box[1]
-        width = box[2]
-        height = box[3]
-        center_of_bounding_box = get_center_coord_of_bounding_box((left,top),
-                                                                 (left + width, top + height)
-                                                                 )
-        detected_object_list.append({'class_name':classes[classIDs[detected_object]],
-                                    'left_top':(left,top),
-                                    'right_bottom':(left + width, top + height),
-                                    'center': center_of_bounding_box})
-
-    return detected_object_list
-
+            # Extract the mask for the object
+            class_mask = mask[class_id]
+            class_mask = cv.resize(class_mask, (right - left + 1, bottom - top + 1))
+            #generate mask 
+            set_mask_frame(mask_frame, left, top, right, bottom, class_mask)
+            detected_obj[i] = {'class_name': classes[class_id],
+                              'left':left, 'top':top , 'right':right , 'bottom':bottom,
+                               'class_mask':class_mask}
+    
+    segmented_frame = mask_frame
+    
+    
     
 
 
+# #The function process_img()
+#     - Takes an image as input
+#     - Returns the 
+#         - A dictionary of detected objects
+#         - An binary image mask
 
-# In[22]:
-
-
-# frame = cv2.imread('/Users/sandeep/Desktop/Homework2019/ComputerVision Homework/TTBB-durham-02-10-17-sub10/left-images/1506942473.484027_L.png')
-# frame, listx =process_image(frame)
-
-
-# In[23]:
+# In[41]:
 
 
-# listx
+def process_img(img):
+    #set the global variable
+    global frame,detected_obj
+    frame= img
+    detected_obj.clear()
+    # create a 4D blob from  a frame
+    # swapRB: boolean to indicate if we want to swap the first and last channel in 3 channel image.
+    #       : OpenCV assumes that images are in BGR format by default but if we want to swap this order to RGB,
+    blob = cv.dnn.blobFromImage(frame, swapRB=True, crop=False)
 
+    # set input to the network
+    net.setInput(blob)
 
-# In[38]:
+    # Run the forward pass computation to get output from the output layers
+    boxes, masks = net.forward(['detection_out_final', 'detection_masks'])
+    
+    postprocess(boxes, masks)
+    
+    return segmented_frame, detected_obj
+    
+    
 
-
-# a = {(1,2):'a'}
-# 'a' in a
-
-
-# In[39]:
-
-
-round(1.11111,1)
-
-
-# In[ ]:
-
-
-
+    
 

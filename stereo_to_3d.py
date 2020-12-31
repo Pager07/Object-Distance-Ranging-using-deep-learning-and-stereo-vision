@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# #The code below is to sets up global variable to be used by function project_disparity_to_3d()
+
 # In[1]:
 
 
@@ -21,27 +23,18 @@ image_centre_h = 262.0;
 image_centre_w = 474.5;
 
 
-# In[5]:
+# #The code converts a give disparity value to distnace in meters
+
+# In[3]:
 
 
-def project_disparity_to_3d(disparity, max_disparity,center_of_bounding_box_coord):
+def project_disparity_to_3d(disparity):
 
     f = camera_focal_length_px;
     B = stereo_camera_baseline_m;
-
-    # assume a minimal disparity of 2 pixels is possible to get Zmax
-    # and then we get reasonable scaling in X and Y output if we change
-    # Z to Zmax in the lines X = ....; Y = ...; below
-
-    # Zmax = ((f * B) / 2);
-    height, width = disparity.shape[:2];
-    row,col = center_of_bounding_box_coord
-    if disparity[row,col]>0:
-        Z = (f * B) / disparity[row,col];
+    if(disparity>0):
+        Z = (f * B) / disparity;
         return Z
     else:
         return 0
-
-
-
 
